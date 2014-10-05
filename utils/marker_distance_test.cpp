@@ -53,7 +53,9 @@ int main(int argc,char **argv)
         boardConfig.readFromFile(boardConfigFile);
 
         //Open the camera
+
         videoCapture.open(0);
+//        videoCapture.open("/home/mars/Dropbox/MarsFiles/marker.avi");
 
         //make sure camera is open
         if (!videoCapture.isOpened()) {
@@ -92,14 +94,40 @@ int main(int argc,char **argv)
                 Size size = Size(640, 480);
 
                 CameraParameters cp = CameraParameters(cam, distortion, size);
-                m.calculateExtrinsics(MARKER_SIZE, cp);
+
+//                This isn't needed I guess
+//                m.calculateExtrinsics(MARKER_SIZE, cp);
+
+                /*
+                This is a handy reference. TODO: Move this somewhere more permanent
+
+                Point topLeft = m[0];
+                Point topRight = m[1];
+                Point bottomRight = m[2];
+                Point bottomLeft = m[3];
+                */
+
+
+                //Find the longest distance between two corners
+                int maxDist = 0;
+
+                for (int i=0;i<4;i++) {
+                    for (int j=i+1;j<4;j++) {
+                        int dist = abs(m[i].x-m[j].x) + abs(m[i].y-m[j].y);
+                        if (dist > maxDist) {
+                            maxDist = dist;
+                        }
+                    }
+                }
+
+                //Display data to the meatbag humans
+                cout << "Max Dist: " << maxDist << " Corners: ";
+                for (int i=0;i<4;i++)
+                    cout<<"("<<m[i].x<< ","<<m[i].y<<") ";
+                cout << endl;
 
                 m.draw(inputImageCopy, COLOR, LINE_WIDTH);
-                Mat t = m.Tvec;
-                int x = t.at<Vec3f>(0, 0)[0];
-//                cout << x << endl;
 
-//                int x = markers[i].
             }
 
             cv::imshow("output video",inputImageCopy);
