@@ -16,6 +16,7 @@ const int WAIT_TIME = 2;
 
 //The size of the marker in meters
 const float MARKER_SIZE = 0.16;
+const float DISTANCE_CONSTANT = 7183.16666666666666;
 
 //Integer representation of which keyboard key was pressed
 int inputKey = 0;
@@ -109,19 +110,24 @@ int main(int argc,char **argv)
 
 
                 //Find the longest distance between two corners
-                int maxDist = 0;
+                float maxCornerDist = 0;
 
                 for (int i=0;i<4;i++) {
                     for (int j=i+1;j<4;j++) {
-                        int dist = abs(m[i].x-m[j].x) + abs(m[i].y-m[j].y);
-                        if (dist > maxDist) {
-                            maxDist = dist;
+                        float dist = sqrt(pow(m[i].x-m[j].x, 2) + pow(m[i].y-m[j].y, 2));
+                        if (dist > maxCornerDist) {
+                            maxCornerDist = dist;
                         }
                     }
                 }
 
+
+//                float estimatedDist = 7483.1 * pow(maxCornerDist, -1.093);
+                float estimatedDist = 5006.5 / maxCornerDist;
+
                 //Display data to the meatbag humans
-                cout << "Max Dist: " << maxDist << " Corners: ";
+                cout << "Estimated Distance (inches): " << estimatedDist << " ";
+                cout << "Max Corner Dist: " << maxCornerDist << " Corners: ";
                 for (int i=0;i<4;i++)
                     cout<<"("<<m[i].x<< ","<<m[i].y<<") ";
                 cout << endl;
