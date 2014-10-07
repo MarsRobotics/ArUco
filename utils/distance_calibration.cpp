@@ -1,6 +1,8 @@
 #include <iostream>
 #include <aruco/aruco.h>
 #include <opencv2/highgui/highgui.hpp>
+#include <fstream>
+#include <time.h>
 
 #define EVER (;1;)
 
@@ -64,6 +66,22 @@ char closeTheProgram = 0;
 */
 void* consoleInput(void*)
 {
+    //Get a timestamp to name the log file
+    time_t now;
+    time(&now);
+    char formattedTime [80];
+    strftime(formattedTime, 80, "%F %T", localtime(&now));
+
+    //avoid the hastle of dealing with char*
+    string logFileName ("");
+    logFileName += "distance_calibration ";
+    logFileName += formattedTime;
+    logFileName += ".log";
+
+    //Open a log file and write a header
+    ofstream logFile (logFileName.c_str());
+    logFile << "\"corner distance\" \"measured distance\"" << endl;
+
     //Loop until the user exits the program
     for EVER {
 
@@ -85,6 +103,9 @@ void* consoleInput(void*)
             continue;
         }
 
+        //log the data
+        logFile << cornerDistance << " " << measuredDistance << endl;
+
         //Update and display the constant produced by the calibration
         markerSum += cornerDistance * measuredDistance;
         ++markerCount;
@@ -92,7 +113,10 @@ void* consoleInput(void*)
 
     }
 
-    //Once the user has left the loop close the other threads
+    //close the log file
+    logFile.close();
+
+    //tell the other threads to close
     closeTheProgram = 1;
 
     return NULL;
