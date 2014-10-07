@@ -97,17 +97,20 @@ void* consoleInput(void*)
             break;
         }
 
+        //Copy corner distance out of shared memory so the other thread doesn't change our value half way through.
+        double cornerDistanceCopy = cornerDistance;
+
         //Check if the measured corner distance is invalid
-        if (cornerDistance < 0) {
+        if (cornerDistanceCopy < 0) {
             cout << "No markers are detected. Data not recorded." << endl;
             continue;
         }
 
         //log the data
-        logFile << cornerDistance << " " << measuredDistance << endl;
+        logFile << cornerDistanceCopy << " " << measuredDistance << endl;
 
         //Update and display the constant produced by the calibration
-        markerSum += cornerDistance * measuredDistance;
+        markerSum += cornerDistanceCopy * measuredDistance;
         ++markerCount;
         cout << "updated constant: " << (markerSum / markerCount) << endl;
 
